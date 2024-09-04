@@ -1,4 +1,4 @@
-FROM nodesource/vivid:latest 
+FROM node:latest 
 
 ADD package.json package.json
 RUN npm install
