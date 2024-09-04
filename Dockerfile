@@ -1,7 +1,8 @@
-FROM node:latest 
+FROM node:latest
 
 ADD package.json package.json
 RUN npm install
 ADD . .
+RUN npm run build
 
-CMD ["node","index.js"]
+CMD ["node","build/index.js"]

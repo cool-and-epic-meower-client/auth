@@ -1,6 +1,5 @@
 #!/usr/bin/node
 
-import { create } from 'domain';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -32,7 +31,7 @@ if (typeof process.env.DB_PASSWORD != "undefined") {
 // Functions
 
 // Check if the format of a key is valid, this does NOT check if the key is valid, only if it could be a valid api key.
-function checkKey(apiKey) {
+function checkKey(apiKey: string): boolean {
     if (apiKey.search(/301a-[\w\d]{4}-[\w\d]{4}-[\w\d]{4}-[\w\d]{4}/g) == 0) {
         return true;
     } else {
@@ -41,8 +40,8 @@ function checkKey(apiKey) {
 }
 
 // Returns a 6 digit auth code
-function createAuthCode() {
-    var authcode = ""
+function createAuthCode(): string {
+    var authcode: string = ""
     for (let i = 0; i < 6; i++) {
         // Create a random number from 0 to 9
         var authDigit = Math.floor(Math.random() * 10);
