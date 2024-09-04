@@ -1,5 +1,6 @@
 #!/usr/bin/node
 
+import { create } from 'domain';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -38,3 +39,17 @@ function checkKey(apiKey) {
         return false;
     }
 }
+
+// Returns a 6 digit auth code
+function createAuthCode() {
+    var authcode = ""
+    for (let i = 0; i < 6; i++) {
+        // Create a random number from 0 to 9
+        var authDigit = Math.floor(Math.random() * 10);
+        // Append auth digit to auth code
+        authcode += authDigit;
+    }
+    return authcode;
+}
+
+console.log(createAuthCode());
