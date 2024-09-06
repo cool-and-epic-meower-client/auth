@@ -1,17 +1,18 @@
 #!/usr/bin/node
 
 import dotenv from 'dotenv';
+import { platform } from 'os';
 import { stringify } from 'querystring';
 import { json } from 'stream/consumers';
 dotenv.config();
 
 
 const express = require('express')
+const meower = require('./app/meower')
 var randomstring = require("randomstring");
 var moment = require('moment');
 const app = express()
 const port = 80
-
 const serverStartTime = moment().unix();
 const skipdbcheck: number = 1;
 
@@ -57,6 +58,23 @@ function checkKey(apiKey: string): boolean {
     }
 }
 
+// Checks if an account exists for a username
+function checkAccount(platform: string, username: string): number {
+    if (platform == "meower") {
+        // Write code to check with the bot if a username exists
+        if (meower.checkAccount(username)) {
+            // 200: Username exists
+            return 200;
+        } else {
+            // 180: Username not found
+            return 180;
+        }
+    } else {
+        // 190: Invalid platform
+        return 190;
+    }
+}
+
 // Returns a 6 digit auth code
 function createAuthCode(): string {
     var authcode: string = ""
@@ -74,7 +92,7 @@ function createAuthToken(): string {
     return authtoken;
 }
 
-app.get('/api/v1/serverstatus', (req: any, res:any ) => {
+app.get('/api/v1/serverstatus', (req: any, res: any) => {
     let requestResponse = JSON.stringify(
         {
             "status": "online",
@@ -85,17 +103,43 @@ app.get('/api/v1/serverstatus', (req: any, res:any ) => {
     console.log(req);
 })
 
-app.post('/api/v1/authuser', (req: any, res: any ) => {
-    console.log(req.query)
-    let authToken: string = createAuthToken();
-    let requestResponse = JSON.stringify(
+app.post('/api/v1/authuser', (req: any, res: any) => {
+    // Create a default response to be sent
+    var requestResponse = JSON.stringify(
         {
-            "result": 200,
+            "result": 400,
+            "errorDesc": "Internal Server Error",
             "user": req.query.user,
             "platform": req.query.platform,
-            "authtoken": authToken
         }
     );
+    // Check if the platform is meower
+    if (req.query.platform == "meower") {
+        // Use checkAccount to ensure the account exists
+        if (checkAccount(req.query.platform, req.query.username)) {
+            let authToken: string = createAuthToken();
+            // TODO: Send code to user
+            requestResponse = JSON.stringify(
+                {
+                    "result": 200,
+                    "user": req.query.user,
+                    "platform": req.query.platform,
+                    "authToken": authToken
+                }
+            );
+        }
+    } else {
+        // 190: Platform not found
+        requestResponse = JSON.stringify(
+            {
+                "result": 190,
+                "errorDesc": "Invalid Platform",
+                "user": req.query.user,
+                "platform": req.query.platform,
+            }
+        );
+    }
+    // Send the response
     res.send(JSON.parse(requestResponse));
 
 })
