@@ -1,8 +1,6 @@
 #!/usr/bin/node
 
 import dotenv from 'dotenv';
-import { platform } from 'os';
-import { stringify } from 'querystring';
 import { json } from 'stream/consumers';
 dotenv.config();
 
@@ -15,6 +13,9 @@ const app = express()
 const port = 80
 const serverStartTime = moment().unix();
 const skipdbcheck: number = 1;
+
+var serverSpeed = "normal";
+var dbNodeUp = false;
 
 // Get DB info from env
 // Save the DB_URL if it has been given in env
@@ -92,57 +93,58 @@ function createAuthToken(): string {
     return authtoken;
 }
 
-app.get('/api/v1/serverstatus', (req: any, res: any) => {
+// Testing endpoint
+app.get('/v1/test', (req: any, res: any) => {
+    let requestResponse = JSON.stringify({
+        "status": 'ok',
+        "result": {
+            "message": "Trans Rights"
+        }
+    })
+    res.send(JSON.parse(requestResponse));
+})
+
+// Server status endpoint
+// TODO: Add downtime code
+app.get('/v1/status', (req: any, res: any) => {
     let requestResponse = JSON.stringify(
+
         {
             "status": "online",
-            "uptime": moment().unix() - serverStartTime
-        }
-    );
-    res.send(JSON.parse(requestResponse));
-    console.log(req);
-})
-
-app.post('/api/v1/authuser', (req: any, res: any) => {
-    // Create a default response to be sent
-    var requestResponse = JSON.stringify(
-        {
-            "result": 400,
-            "errorDesc": "Internal Server Error",
-            "user": req.query.user,
-            "platform": req.query.platform,
-        }
-    );
-    // Check if the platform is meower
-    if (req.query.platform == "meower") {
-        // Use checkAccount to ensure the account exists
-        if (checkAccount(req.query.platform, req.query.username)) {
-            let authToken: string = createAuthToken();
-            // TODO: Send code to user
-            requestResponse = JSON.stringify(
-                {
-                    "result": 200,
-                    "user": req.query.user,
-                    "platform": req.query.platform,
-                    "authToken": authToken
-                }
-            );
-        }
-    } else {
-        // 190: Platform not found
-        requestResponse = JSON.stringify(
-            {
-                "result": 190,
-                "errorDesc": "Invalid Platform",
-                "user": req.query.user,
-                "platform": req.query.platform,
+            "result": {
+                "startTime": serverStartTime,
+                "serverSpeed": serverSpeed,
+                "dbNodeUp": dbNodeUp
             }
-        );
-    }
-    // Send the response
+        }
+    );
     res.send(JSON.parse(requestResponse));
-
 })
+
+// Create a new token
+// TODO: Connect to the db
+app.get('/v1/auth/newtoken', (req: any, res: any) =>  {
+    var expiry: number;
+    if (typeof(req.query.expire) != "undefined") {
+        expiry = Number(req.query.expire);
+    } else {
+        expiry = Date.now() + 200000
+    }
+    let requestResponse = JSON.stringify(
+
+        {
+            "status": "ok",
+            "result": {
+                "token": createAuthToken(),
+                "timestamp": Date.now(),
+                "expire": expiry
+            }
+        }
+    );
+    res.send(JSON.parse(requestResponse));
+})
+
+
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
