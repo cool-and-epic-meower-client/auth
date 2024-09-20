@@ -1,34 +1,5 @@
 #!/usr/bin/node
 
-<<<<<<< Updated upstream
-import dotenv from 'dotenv';
-dotenv.config();
-
-// Get DB info from env
-// Save the DB_URL if it has been given in env
-if (typeof process.env.DB_URL != "undefined") {
-    var dbUrl = process.env.DB_URL;
-} else {
-    console.log("Error (29): DB_URL not provided");
-    process.exit(29);
-}
-
-// Save the DB_USER if it has been given in env
-if (typeof process.env.DB_USER != "undefined") {
-    var dbUser = process.env.DB_USER;
-} else {
-    console.log("Error (29): DB_USER not provided");
-    process.exit(29);
-}
-
-// Save the DB_PASSWORD if it has been given in env
-if (typeof process.env.DB_PASSWORD != "undefined") {
-    var dbPassword = process.env.DB_PASSWORD;
-} else {
-    console.log("Error (29): DB_PASSWORD not provided");
-    process.exit(29);
-}
-=======
 import { BlobOptions } from 'buffer';
 import { request } from 'http';
 import { json } from 'stream/consumers';
@@ -46,7 +17,6 @@ var serverSpeed = "normal";
 var dbNodeUp = false;
 
 db.init();
->>>>>>> Stashed changes
 
 // Functions
 
@@ -79,21 +49,6 @@ function checkKey(apiKey: string): boolean {
     }
 }
 
-<<<<<<< Updated upstream
-// Returns a 6 digit auth code
-function createAuthCode(): string {
-    var authcode: string = ""
-    for (let i = 0; i < 6; i++) {
-        // Create a random number from 0 to 9
-        var authDigit = Math.floor(Math.random() * 10);
-        // Append auth digit to auth code
-        authcode += authDigit;
-    }
-    return authcode;
-}
-
-console.log(createAuthCode());
-=======
 /* ----Accounts---- */
 
 // Checks if an account exists for a username
@@ -207,4 +162,3 @@ app.delete('/v1/auth/deleteToken', (req: any, res: any) => {
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 })
->>>>>>> Stashed changes
